@@ -22,7 +22,7 @@ services:
     healthCheckPath: "/"
 
   - name: database
-    type: postgresql
+    type: postgres
     plan: hobby-basic
     disk: 10
     envVars:
@@ -33,22 +33,3 @@ services:
           name: mydatabase-secret
           key: password
     connectionStringKey: connectionString
-
-routes:
-  - path: /
-    service: web
-    internal: true
-
-env:
-  RAILS_LOG_TO_STDOUT: 1
-
-secrets:
-  - name: mydatabase-secret
-    data:
-      password: <DATABASE_PASSWORD>
-      secret: <DATABASE_MASTER_KEY>
-
-volumes:
-  - name: myapp-db
-    size: 10
-    mountPath: /var/lib/postgresql/data
