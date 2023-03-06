@@ -22,7 +22,7 @@ services:
     healthCheckPath: "/"
 
   - name: database
-    type: postgres
+    type: postgresql
     plan: hobby-basic
     disk: 10
     envVars:
