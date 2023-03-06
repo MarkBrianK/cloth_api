@@ -1,0 +1,54 @@
+services:
+  - name: web
+    type: web
+    plan: hobby
+    buildCommand: bundle exec rails assets:precompile
+    startCommand: bundle exec rails server -p $PORT -e $RAILS_ENV
+    env:
+      RAILS_ENV: production
+    envVars:
+      RAILS_MASTER_KEY:
+        fromDatabase:
+          name: mydatabase
+          connectionStringKey: connectionString
+          secretKeyRef:
+            name: mydatabase-secret
+            key: secret
+    envFrom:
+      - secretRef:
+          name: myapp-secret
+    ports:
+      - 80
+    healthCheckPath: "/"
+
+  - name: database
+    type: postgresql
+    plan: hobby-basic
+    disk: 10
+    envVars:
+      POSTGRES_DB: myapp_production
+      POSTGRES_USER: render
+      POSTGRES_PASSWORD:
+        fromSecret:
+          name: mydatabase-secret
+          key: password
+    connectionStringKey: connectionString
+
+routes:
+  - path: /
+    service: web
+    internal: true
+
+env:
+  RAILS_LOG_TO_STDOUT: 1
+
+secrets:
+  - name: mydatabase-secret
+    data:
+      password: <DATABASE_PASSWORD>
+      secret: <DATABASE_MASTER_KEY>
+
+volumes:
+  - name: myapp-db
+    size: 10
+    mountPath: /var/lib/postgresql/data
